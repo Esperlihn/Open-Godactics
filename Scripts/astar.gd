@@ -9,6 +9,8 @@ var map_size:Dictionary = {"x":0,"y":0}
 var visible_tiles = []
 var highlights = []
 var active_highlights = {}
+var layer_height = -8
+const iso_set:int = 0
 
 var index_layer_value:int
 var index_column_value:int
@@ -46,11 +48,11 @@ func _ready() -> void:
 	orientation = 0
 	
 	$"../Camera2D/Canvas".set_size($"../Camera2D".get_canvas_transform()[2])
-	$"../Camera2D/Canvas".position = ($"../Camera2D".position - ($"../Camera2D/Canvas".size/2)) + Vector2(-3, 10)
+	$"../Camera2D/Canvas".position = ($"../Camera2D".position - ($"../Camera2D/Canvas".size/2)) + Vector2(layer_height, 10)
 	
 	for layer:TileMapLayer in get_children():
 		var z = int(str(layer.name))
-		layer.position.y = z * -3
+		layer.position.y = z * layer_height
 		layer.z_index = z
 	
 	set_map_size()
@@ -73,10 +75,10 @@ func _ready() -> void:
 func generate_highlights():
 	for i in index_layer_value * 2:
 		var highlight = Sprite2D.new()
-		highlight.texture = load("res://Resources/Gaia Isopack/Tile Roster.png")
+		highlight.texture = load("res://Resources/isometric tileset/spritesheet.png")
 		highlight.region_enabled = true
 		highlight.visible = false
-		highlight.region_rect = Rect2(336, 16, 47, 17)
+		highlight.region_rect = Rect2(288, 304, 32, 16)
 		get_parent().add_child.call_deferred(highlight)
 		highlight.position = Vector2.ZERO
 		highlights.append(highlight)
@@ -87,6 +89,7 @@ func _collect_used_tiles():
 	for layer:TileMapLayer in get_children():
 		
 		for tile in layer.get_used_cells():
+			print(tile, layer.name)
 			var texture:String = layer.get_cell_tile_data(tile).get_custom_data("name")
 			
 			if texture == "":
@@ -271,7 +274,7 @@ func _rotate_visible_tiles(direction):
 			x = atlas[index].y
 			y = -atlas[index].x
 		
-		layer.set_cell(Vector2(x,y), 2, atlas[index].texture) 
+		layer.set_cell(Vector2(x,y), iso_set, atlas[index].texture) 
 		atlas[index].x = x
 		atlas[index].y = y
 		atlas[index].map = Vector2(x,y)
@@ -297,7 +300,7 @@ func _rotate_highlights():
 		var tile = atlas[index].map
 		var z = int(str(layer.name))
 		highlightbuffer[index].position = layer.map_to_local(tile)
-		highlightbuffer[index].position += Vector2(0, (z-1) * -3)
+		highlightbuffer[index].position += Vector2(0, z * layer_height)
 		highlightbuffer[index].visible = true
 	active_highlights = highlightbuffer.duplicate(true)
 	
@@ -384,7 +387,7 @@ func set_highlight(index:int):
 
 	highlight.z_index = z
 	highlight.position = layer.map_to_local(tile)
-	highlight.position += Vector2(0, (z*-3)+3)
+	highlight.position += Vector2(0, z * layer_height)
 	highlight.visible = true
 
 	active_highlights[index] = highlight
