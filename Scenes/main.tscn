@@ -1,0 +1,220 @@
+[gd_scene load_steps=6 format=4 uid="uid://dwd1b7f4fltt0"]
+
+[ext_resource type="Script" path="res://Scripts/astar.gd" id="1_3m31v"]
+[ext_resource type="Texture2D" uid="uid://dcl1ax6ugnphj" path="res://Resources/Gaia Isopack/Tile Roster.png" id="2_u1l46"]
+[ext_resource type="Script" path="res://Scenes/rotate_button.gd" id="3_rser2"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_k2st2"]
+resource_name = "Tiles"
+texture = ExtResource("2_u1l46")
+margins = Vector2i(16, 5)
+separation = Vector2i(17, 0)
+texture_region_size = Vector2i(47, 32)
+0:1/0 = 0
+0:3/next_alternative_id = 6
+0:3/0 = 0
+0:3/1 = 1
+0:3/3 = 3
+0:3/4 = 4
+0:3/5 = 5
+0:9/0 = 0
+0:13/0 = 0
+0:13/0/custom_data_0 = "water"
+2:13/0 = 0
+2:13/0/custom_data_0 = "water_deep"
+3:13/0 = 0
+3:13/0/custom_data_0 = "water_shallow"
+0:2/0 = 0
+0:2/0/custom_data_0 = "grass_green"
+0:4/0 = 0
+0:4/0/custom_data_0 = "grass"
+0:10/0 = 0
+0:10/0/custom_data_0 = "dirt"
+0:5/0 = 0
+0:5/0/custom_data_0 = "road_dirt"
+0:7/0 = 0
+0:7/0/custom_data_0 = "road_pavement"
+5:0/0 = 0
+5:0/0/custom_data_0 = "highlight"
+
+[sub_resource type="TileSet" id="TileSet_68hra"]
+tile_shape = 1
+tile_layout = 5
+tile_size = Vector2i(48, 16)
+custom_data_layer_0/name = "name"
+custom_data_layer_0/type = 4
+sources/2 = SubResource("TileSetAtlasSource_k2st2")
+
+[node name="Main" type="Node2D"]
+
+[node name="Astar" type="Node2D" parent="."]
+script = ExtResource("1_3m31v")
+
+[node name="0" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+tile_map_data = PackedByteArray("AAD6//v/AgAAAAIAAAD6//z/AgAAAAoAAAD6//3/AgAAAAoAAAD6//7/AgAAAAoAAAD6////AgAAAAoAAAD6/wAAAgAAAAoAAAD6/wEAAgAAAAoAAAD6/wIAAgAAAAoAAAD6/wMAAgAAAAoAAAD6/wQAAgAAAAoAAAD6/wUAAgAAAAoAAAD7//v/AgAAAAIAAAD7//z/AgAAAAoAAAD7//3/AgAAAAoAAAD7//7/AgAAAAoAAAD7////AgAAAAoAAAD7/wAAAgAAAAoAAAD7/wEAAgAAAAoAAAD7/wIAAgAAAAoAAAD7/wMAAgAAAAoAAAD7/wQAAgAAAAoAAAD7/wUAAgAAAAoAAAD8//v/AgAAAAIAAAD8//z/AgAAAAIAAAD8//3/AgAAAAoAAAD8//7/AgAAAAoAAAD8////AgAAAAoAAAD8/wAAAgAAAAoAAAD8/wEAAgAAAAoAAAD8/wIAAgAAAAoAAAD8/wMAAgAAAAoAAAD8/wQAAgAAAAoAAAD8/wUAAgAAAAoAAAD9//v/AgAAAAoAAAD9//z/AgAAAAIAAAD9//3/AgAAAAIAAAD9//7/AgAAAAoAAAD9////AgAAAAoAAAD9/wAAAgAAAAoAAAD9/wEAAgAAAAoAAAD9/wIAAgAAAAoAAAD9/wMAAgAAAAoAAAD9/wQAAgAAAAoAAAD9/wUAAgAAAAoAAAD+//v/AgAAAAoAAAD+//z/AgAAAAoAAAD+//3/AgAAAAIAAAD+//7/AgAAAAoAAAD+////AgAAAAoAAAD+/wAAAgAAAAoAAAD+/wEAAgAAAAoAAAD+/wIAAgAAAAoAAAD+/wMAAgAAAAoAAAD+/wQAAgAAAAoAAAD+/wUAAgAAAAoAAAD///v/AgAAAAoAAAD///z/AgAAAAoAAAD///3/AgAAAAIAAAD///7/AgAFAAAAAAD/////AgAAAAoAAAD//wAAAgAAAAoAAAD//wEAAgAAAAoAAAD//wIAAgAAAAoAAAD//wMAAgAAAAoAAAD//wQAAgAAAAoAAAD//wUAAgAAAAoAAAAAAPv/AgAAAAoAAAAAAPz/AgAAAAoAAAAAAP3/AgAAAAIAAAAAAP7/AgAAAAIAAAAAAP//AgAAAAIAAAAAAAAAAgAAAAIAAAAAAAEAAgAAAAoAAAAAAAIAAgAAAAoAAAAAAAMAAgAAAAoAAAAAAAQAAgAAAAoAAAAAAAUAAgAAAAoAAAABAPv/AgAAAAoAAAABAPz/AgAAAAoAAAABAP3/AgAAAAoAAAABAP7/AgAAAAoAAAABAP//AgAAAAoAAAABAAAAAgAAAAIAAAABAAEAAgAAAAoAAAABAAIAAgAAAAoAAAABAAMAAgAAAAoAAAABAAQAAgAAAAoAAAABAAUAAgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="1" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -3)
+tile_map_data = PackedByteArray("AAD+////AgAAAAQAAAD+/wAAAgAAAAQAAAD+/wEAAgAAAAQAAAD/////AgAAAAQAAAD//wAAAgAAAAQAAAD//wEAAgAAAAQAAAAAAAEAAgAAAAQAAAD6//z/AgAAAAoAAAD6//3/AgAAAAoAAAD6//7/AgAAAAoAAAD6////AgAAAAoAAAD6/wAAAgAAAAoAAAD6/wEAAgAAAAoAAAD6/wIAAgAAAAoAAAD6/wMAAgAAAAoAAAD6/wQAAgAAAAoAAAD6/wUAAgAAAAoAAAD7//z/AgAAAAQAAAD7//3/AgAAAAQAAAD7//7/AgAAAAQAAAD7////AgAAAAQAAAD7/wAAAgAAAAQAAAD7/wEAAgAAAAQAAAD7/wIAAgAAAAQAAAD7/wMAAgAAAAQAAAD7/wQAAgAAAAQAAAD7/wUAAgAAAAQAAAD8//3/AgAAAAQAAAD8//7/AgAAAAQAAAD8////AgAAAAQAAAD8/wAAAgAAAAQAAAD8/wEAAgAAAAQAAAD8/wIAAgAAAAQAAAD8/wMAAgAAAAQAAAD8/wQAAgAAAAQAAAD8/wUAAgAAAAQAAAD9//v/AgAAAAoAAAD9//7/AgAAAAQAAAD9////AgAAAAQAAAD9/wAAAgAAAAQAAAD9/wEAAgAAAAQAAAD9/wIAAgAAAAQAAAD9/wMAAgAAAAQAAAD9/wQAAgAAAAQAAAD9/wUAAgAAAAoAAAD+//v/AgAAAAoAAAD+//z/AgAAAAQAAAD+//7/AgAAAAQAAAD+/wIAAgAAAAQAAAD+/wMAAgAAAAQAAAD+/wQAAgAAAAQAAAD+/wUAAgAAAAQAAAD///v/AgAAAAQAAAD///z/AgAAAAQAAAD///7/AgAAAAQAAAD//wIAAgAAAAQAAAD//wMAAgAAAAQAAAD//wQAAgAAAAQAAAD//wUAAgAAAAQAAAAAAPv/AgAAAAQAAAAAAPz/AgAAAAQAAAAAAAIAAgAAAAQAAAAAAAMAAgAAAAQAAAAAAAQAAgAAAAQAAAAAAAUAAgAAAAQAAAABAPv/AgAAAAQAAAABAPz/AgAAAAQAAAABAP3/AgAAAAQAAAABAP7/AgAAAAQAAAABAP//AgAAAAQAAAABAAEAAgAAAAoAAAABAAIAAgAAAAoAAAABAAMAAgAAAAoAAAABAAQAAgAAAAoAAAABAAUAAgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="2" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -7)
+tile_map_data = PackedByteArray("AAD6//3/AgAAAAoAAAD6//7/AgAAAAoAAAD6////AgAAAAoAAAD6/wAAAgAAAAoAAAD6/wEAAgAAAAoAAAD6/wIAAgAAAAoAAAD6/wMAAgAAAAoAAAD6/wQAAgAAAAoAAAD6/wUAAgAAAAoAAAD9/wUAAgAAAAoAAAABAAUAAgAAAAoAAAABAAQAAgAAAAoAAAABAAMAAgAAAAoAAAABAAIAAgAAAAoAAAABAAEAAgAAAAoAAAD9//v/AgAAAAoAAAD+//v/AgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="3" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -11)
+tile_map_data = PackedByteArray("AAD6//7/AgAAAAoAAAD6////AgAAAAoAAAD6/wAAAgAAAAoAAAD6/wEAAgAAAAoAAAD6/wIAAgAAAAoAAAD6/wMAAgAAAAoAAAD6/wQAAgAAAAoAAAD6/wUAAgAAAAoAAAD9/wUAAgAAAAoAAAABAAUAAgAAAAoAAAABAAQAAgAAAAoAAAABAAMAAgAAAAoAAAABAAIAAgAAAAoAAAD9//v/AgAAAAoAAAD+//v/AgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="4" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -15)
+tile_map_data = PackedByteArray("AAD6////AgAAAAoAAAD6/wAAAgAAAAoAAAD6/wEAAgAAAAoAAAD6/wIAAgAAAAoAAAD6/wMAAgAAAAoAAAD6/wQAAgAAAAoAAAD6/wUAAgAAAAoAAAD9/wUAAgAAAAoAAAABAAUAAgAAAAoAAAABAAQAAgAAAAoAAAABAAIAAgAAAAoAAAABAAMAAgAAAAoAAAD+//v/AgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="5" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -19)
+tile_map_data = PackedByteArray("AAD6/wAAAgAAAAoAAAD6/wEAAgAAAAoAAAD6/wIAAgAAAAoAAAD6/wMAAgAAAAoAAAD6/wQAAgAAAAoAAAD6/wUAAgAAAAoAAAD9/wUAAgAAAAoAAAABAAUAAgAAAAoAAAABAAQAAgAAAAoAAAABAAMAAgAAAAoAAAD+//v/AgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="6" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -23)
+tile_map_data = PackedByteArray("AAD6/wEAAgAAAAoAAAD6/wIAAgAAAAoAAAD6/wMAAgAAAAoAAAD6/wQAAgAAAAoAAAD6/wUAAgAAAAoAAAD9/wUAAgAAAAoAAAABAAUAAgAAAAoAAAABAAQAAgAAAAoAAAABAAMAAgAAAAoAAAD+//v/AgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="7" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -27)
+tile_map_data = PackedByteArray("AAD6/wUAAgAAAAoAAAD6/wQAAgAAAAoAAAD6/wMAAgAAAAoAAAD6/wIAAgAAAAoAAAD9/wUAAgAAAAoAAAABAAUAAgAAAAoAAAABAAQAAgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="8" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -31)
+tile_map_data = PackedByteArray("AAD6/wUAAgAAAAoAAAD6/wQAAgAAAAoAAAD6/wMAAgAAAAoAAAD9/wUAAgAAAAoAAAABAAUAAgAAAAoAAAABAAQAAgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="9" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -35)
+tile_map_data = PackedByteArray("AAD6/wUAAgAAAAoAAAD6/wQAAgAAAAoAAAD9/wUAAgAAAAoAAAABAAUAAgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="10" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -39)
+tile_map_data = PackedByteArray("AAD6/wUAAgAAAAoAAAD7/wUAAgAAAAoAAAD8/wUAAgAAAAoAAAD9/wUAAgAAAAoAAAD+/wUAAgAAAAoAAAD//wUAAgAAAAoAAAAAAAUAAgAAAAoAAAABAAUAAgAAAAoAAAA=")
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="11" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -43)
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="12" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -47)
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="13" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -51)
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="14" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -55)
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="15" type="TileMapLayer" parent="Astar"]
+texture_filter = 1
+position = Vector2(0, -59)
+tile_set = SubResource("TileSet_68hra")
+collision_enabled = false
+navigation_enabled = false
+
+[node name="Camera2D" type="Camera2D" parent="."]
+z_index = 99
+z_as_relative = false
+position = Vector2(3, -2)
+zoom = Vector2(2, 2)
+
+[node name="Canvas" type="HBoxContainer" parent="Camera2D"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Left" type="VBoxContainer" parent="Camera2D/Canvas"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Rotate_Left" type="Button" parent="Camera2D/Canvas/Left"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Rotate Left"
+script = ExtResource("3_rser2")
+
+[node name="Left_Botton" type="HBoxContainer" parent="Camera2D/Canvas/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Center" type="VBoxContainer" parent="Camera2D/Canvas"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Right" type="VBoxContainer" parent="Camera2D/Canvas"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Rotate_Right" type="Button" parent="Camera2D/Canvas/Right"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Rotate Right"
+script = ExtResource("3_rser2")
+
+[node name="Right_Bottom" type="HBoxContainer" parent="Camera2D/Canvas/Right"]
+layout_mode = 2
+size_flags_vertical = 3
