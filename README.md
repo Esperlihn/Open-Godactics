@@ -9,7 +9,7 @@ I'm working on this project as a resource to make developing maps and quickly pl
 - [x] Map Rotation
 
 ## 0.2
-- [ ] Add ability to create highlights
+- [x] Add ability to create highlights
 - [ ] Add ability to generate movement grid for entities
 - [ ] Add ability to generate movement paths between two locations
 
