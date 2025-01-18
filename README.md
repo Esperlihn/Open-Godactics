@@ -10,7 +10,7 @@ I'm working on this project as a resource to make developing maps and quickly pl
 
 ## 0.2
 - [x] Add ability to create highlights
-- [ ] Add ability to generate movement grid for entities
+- [x] Add ability to generate movement grid for entities
 - [ ] Add ability to generate movement paths between two locations
 
 ## 0.3
