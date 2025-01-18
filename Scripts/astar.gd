@@ -1,6 +1,7 @@
 extends Node2D
 
 @onready var astar = AStar3D.new()
+@export var movement_range:int = 1
 var atlas:Dictionary = {}
 var map_max = null#:Vector2
 var map_min = null#:Vector2
@@ -31,6 +32,9 @@ var index_move_down_back:int
 var index_move_down:int
 
 var orientation:int:set = _change_orientation
+var panning = false
+var pan_anchor:Vector2
+
 
 enum DIRECTION {RIGHT, LEFT}
 
@@ -47,8 +51,8 @@ func _ready() -> void:
 	
 	orientation = 0
 	
-	$"../Camera2D/Canvas".set_size($"../Camera2D".get_canvas_transform()[2])
-	$"../Camera2D/Canvas".position = ($"../Camera2D".position - ($"../Camera2D/Canvas".size/2)) + Vector2(layer_height, 10)
+	$"../Camera/Canvas".set_size($"../Camera".get_canvas_transform()[2])
+	$"../Camera/Canvas".position = ($"../Camera".position - ($"../Camera/Canvas".size/2)) + Vector2(layer_height, 10)
 	
 	for layer:TileMapLayer in get_children():
 		var z = int(str(layer.name))
@@ -281,15 +285,14 @@ func _rotate_visible_tiles(direction):
 
 func _rotate_camera(direction):
 	var base_layer:TileMapLayer = get_child(0)
-	var cam = $"../Camera2D"
-	var cam_coord:Vector2i = base_layer.local_to_map(cam.position)
+	var cam_coord:Vector2i = base_layer.local_to_map(%Camera.position)
 	
 	match direction:
 		DIRECTION.RIGHT:
-			cam.position = base_layer.map_to_local(Vector2(-cam_coord.y, cam_coord.x))
+			%Camera.position = base_layer.map_to_local(Vector2(-cam_coord.y, cam_coord.x))
 			orientation += 90
 		DIRECTION.LEFT:
-			cam.position = base_layer.map_to_local(Vector2(cam_coord.y, -cam_coord.x))
+			%Camera.position = base_layer.map_to_local(Vector2(cam_coord.y, -cam_coord.x))
 			orientation -= 90
 
 func _rotate_highlights():
@@ -360,23 +363,58 @@ func find_clicked_tile(event):
 		clicked_tile.y - map_min.y, 
 		int(str(clicked_layer.name))
 		))
-	var neighbours = astar.get_point_connections(click_index)
-	for index in neighbours:
-		if !atlas.has(index):
-			printerr("Index ", index, " is NULL")
-		if atlas.has(index + index_layer_value):
-			continue
-		var layer = atlas[index].layer
-		var point = Vector2(
-			atlas[index].map.x, 
-			atlas[index].map.y,
-			)
-		set_highlight(index)
+		
+	var index_above = click_index + index_layer_value
+	if atlas.get(index_above):
+		printerr("Clicked tile is not navicable")
+		return
+	calc_movement_range(click_index)
 	set_highlight(click_index)
 	print("Click Index = ", click_index)
 	#Check what tiles clicked tile is connected to. Maybe have it highlight them for debugging purposes.
 
+
+func calc_movement_range(start_index):
+	#Use the code below to get started on the movement range function. 
+	var neighbours = astar.get_point_connections(start_index)
+	var movement_array = []
+	var buffer = []
+	var search_indexes = [start_index]
+	
+	var movement = movement_range
+	
+	while movement >= 0:
+		for index in search_indexes:
+			for neighbour in astar.get_point_connections(index):
+				if atlas.get(neighbour + index_layer_value):
+					continue
+				if !buffer.has(neighbour):
+					buffer.append(neighbour)
+			movement_array.append(index)
+			set_highlight(index)
+			print("Index to Highlight: ", index)
+		search_indexes = []
+		search_indexes = buffer
+		buffer = []
+		movement -= 1
+	#print("Movement Array: ", movement_array)
+	print("Active highlights size: ", active_highlights.keys().size())
+	
+	#for index in neighbours:
+		#if !atlas.has(index):
+			#printerr("Index ", index, " is NULL")
+		#if atlas.has(index + index_layer_value):
+			#continue
+		#var layer = atlas[index].layer
+		#var point = Vector2(
+			#atlas[index].map.x, 
+			#atlas[index].map.y,
+			#)
+		#set_highlight(index)
+
 func set_highlight(index:int):
+	if active_highlights.has(index):
+		return
 	var layer = atlas[index].layer
 	if !layer:
 		printerr("Index has no layer value!")
@@ -389,8 +427,10 @@ func set_highlight(index:int):
 	highlight.position = layer.map_to_local(tile)
 	highlight.position += Vector2(0, z * layer_height)
 	highlight.visible = true
-
+	
 	active_highlights[index] = highlight
+	#active_highlights.append(highlight)
+
 
 func clear_highlights():
 	for highlight in active_highlights.values():
@@ -412,10 +452,21 @@ func set_tile(index, texture_coordinates=null):
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.get_class() == "InputEventMouseButton":
-		if event.as_text() == "Left Mouse Button":
-			if event.pressed == true:
-				find_clicked_tile(event)
+		match event.as_text():
+			"Left Mouse Button":
+				if event.pressed == true: 
+					find_clicked_tile(event)
+			
+			"Middle Mouse Button", "Right Mouse Button":
+				panning = event.pressed
+				pan_anchor = get_global_mouse_position()
+			
+			_:
+				print(event.as_text(), " was pressed but has no assigned function")
 
+func _process(delta: float) -> void:
+	if panning:
+		%Camera.position += pan_anchor - get_global_mouse_position()
 
 func _calc_astar_index(vec3:Vector3i):
 	if vec3.x < 0 or vec3.y < 0:
@@ -439,11 +490,11 @@ func _mapcoord_to_astarcoord(x:int, y:int, z:int):
 	return Vector3(x,y,z)
 
 func find_index_z_value(index):
-	var layer_index_size = map_size.x * map_size.y
+	#var layer_index_size = map_size.x * map_size.y
 	var index_count = 0
 	var z = 0
 	while index > index_count:
-		index_count += layer_index_size
+		#index_count += layer_index_size
 		z += 1
 	return z
 
