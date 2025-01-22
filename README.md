@@ -13,11 +13,11 @@ Place a grass tile
 
 # Roadmap:
 
-## 0.1
+## 0.1 Map Control
 - [x] Identify Clicked Tile
 - [x] Map Rotation
 
-## 0.2
+## 0.2 Pathfinding
 - [x] Add ability to create highlights
 - [x] Add ability to generate movement grid for entities
 - [ ] Add ability to generate movement paths between two locations
@@ -26,14 +26,21 @@ Place a grass tile
 - [x] Add ability for map to update at runtime upon tiles being edited
 - [ ] Have system automatically update visualtiles array when placing or removing tiles
 
-## 0.3
-- [ ] Figure out what to put here ;n;
+## 0.3 Movement
+- [ ] Entity follow a path laid out before them
+- [ ] Basic functional turnqueue to alternate between turns
+- [ ] Menu to end turn or choose movement
+- [ ] Certain entities able to traverse different terrain (swimming etc)
       
-## 0.4
-- [ ] Figure out what to put here too!! ;n;
+## 0.4 Map Editor
+- [ ] Add basic map editor functions and UI
 
-## 0.5
-- [ ] Start adding in battle related stuff
+## 0.5 Battle
+- [ ] Add ability to select targets and attack them
+- [ ] Add stats to entities
+- [ ] Add ranged abilities
+- [ ] Add close combat abilities
+- [ ] Add healing abilities 
 
 ## 0.6
 - [ ] Figure out milestones!
