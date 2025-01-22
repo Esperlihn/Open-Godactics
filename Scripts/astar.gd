@@ -7,7 +7,7 @@ var map_max = null#:Vector2
 var map_min = null#:Vector2
 var map_height:int = 0
 var map_size:Dictionary = {"x":0,"y":0}
-var visible_tiles = []
+var visible_tiles:Array:set = _update_visual_tiles
 var highlights = []
 var active_highlights = {}
 var layer_height = -8
@@ -61,6 +61,7 @@ func _ready() -> void:
 	
 	set_map_size()
 	set_index_values()
+	create_astar_grid()
 	add_all_tiles_to_atlas(used_tiles)
 	add_tiles_to_astar_grid()
 	connect_astar_points()
@@ -74,7 +75,13 @@ func _ready() -> void:
 	print("Visible Tiles: ", visible_tiles.size())
 	
 	print("Ready function took ", Time.get_ticks_msec() - timer, "ms to complete")
+	print(visible_tiles.size())
+	print(visible_tiles)
 
+func _update_visual_tiles(index):
+	if visible_tiles.has(index):
+		return
+	visible_tiles.append(index)
 
 func generate_highlights():
 	for i in index_layer_value * 2:
@@ -93,7 +100,7 @@ func _collect_used_tiles():
 	for layer:TileMapLayer in get_children():
 		
 		for tile in layer.get_used_cells():
-			print(tile, layer.name)
+			#print(tile, layer.name)
 			var texture:String = layer.get_cell_tile_data(tile).get_custom_data("name")
 			
 			if texture == "":
@@ -114,6 +121,16 @@ func _collect_used_tiles():
 		
 	print("Visible tiles: ", visible_tiles.size())
 	return array
+
+func create_astar_grid():
+	var timer2 = Time.get_ticks_msec()
+	for z in range(0, map_height):
+		for y in range(0, map_max.y-map_min.y + 1):
+			for x in range(0, map_max.x-map_min.x + 1):
+				astar.add_point(_calc_astar_index(Vector3(x,y,z)), Vector3(x,y,z))
+	print("Astar point count: ", astar.get_point_count())
+	print("Astar grid creation took ", Time.get_ticks_msec() - timer2, "msec")
+
 
 func add_all_tiles_to_atlas(used_tiles):
 	print("Used Tiles[0]: ", used_tiles[0])
@@ -248,7 +265,7 @@ func connect_neighbors(neighbours, countneighbours = false):
 #region Rotation Functions
 func _rotate_map(direction):
 	var time = Time.get_ticks_msec()
-	print("Direction = ", direction)
+	print("----- Rotatate Direction = ", direction, " -----")
 	match direction:
 		"Rotate_Right":
 			direction = DIRECTION.RIGHT
@@ -259,8 +276,8 @@ func _rotate_map(direction):
 	_rotate_visible_tiles(direction)
 	_rotate_highlights()
 	print("active highlights count ", active_highlights.size())
-	print(active_highlights)
 	print("Function:  rotate_map() ran in ", Time.get_ticks_msec() - time, "msec")
+	#print(" ==========")
 
 func _rotate_visible_tiles(direction):
 	var layer:TileMapLayer
@@ -296,24 +313,27 @@ func _rotate_camera(direction):
 			orientation -= 90
 
 func _rotate_highlights():
-	var highlightbuffer = active_highlights.duplicate(true)
+	var highlightstorotate = active_highlights.keys()
+
 	clear_highlights()
-	for index in highlightbuffer.keys():
+
+	for index in highlightstorotate:
 		var layer = atlas[index].layer
 		var tile = atlas[index].map
 		var z = int(str(layer.name))
-		highlightbuffer[index].position = layer.map_to_local(tile)
-		highlightbuffer[index].position += Vector2(0, z * layer_height)
-		highlightbuffer[index].visible = true
-	active_highlights = highlightbuffer.duplicate(true)
+		set_highlight(index)
+
 	
 func adjust_coord_for_orientation(coordinates:Vector2):
 	match orientation:
-		0: return coordinates
-		90: return Vector2(coordinates.y, -coordinates.x)
-		180:return Vector2(-coordinates.x, -coordinates.y)
-		270:return Vector2(-coordinates.y, coordinates.x)
-		360: return coordinates
+		0, 360: 
+			return Vector2i(coordinates.x,coordinates.y)
+		90: 
+			return Vector2i(coordinates.y, -coordinates.x)
+		180:
+			return Vector2i(-coordinates.x, -coordinates.y)
+		270:
+			return Vector2i(-coordinates.y, coordinates.x)
 		_: 
 			printerr("Orientation ", orientation, " is not a valid orientation value.")
 			printerr("Durr")
@@ -336,48 +356,34 @@ func clear_tilemaps():
 		layer.clear()
 
 func find_clicked_tile(event):
-	var mouse_position = get_global_mouse_position()
-	var clicked_tile = null
-	var clicked_layer = null
-	print("Mouse Position: ", mouse_position)
+	var astarcoord:Vector3
+	
+	astarcoord = global_to_astarcoord(get_global_mouse_position())
+
 	
 	clear_highlights()
 	
-	for layer:TileMapLayer in get_children():
-		var click_pos = layer.local_to_map(mouse_position - Vector2(0, layer.position.y))
-		if layer.get_cell_tile_data(click_pos) == null:
-			continue
-		clicked_tile = click_pos
-		clicked_layer = layer
-
-	if clicked_tile == null:
-		printerr("Clicked tile returned as null")
+	if astarcoord == Vector3(-1,-1,-1):
 		return
-
-	clicked_tile = adjust_coord_for_orientation(clicked_tile)
 	
-	print("Selected Layer is ", clicked_layer, " with Tile ", clicked_tile)
-	
-	var click_index = _calc_astar_index(Vector3(
-		clicked_tile.x - map_min.x, 
-		clicked_tile.y - map_min.y, 
-		int(str(clicked_layer.name))
-		))
+	var index = _calc_astar_index(astarcoord)
 		
-	var index_above = click_index + index_layer_value
+	var index_above = index + index_layer_value
 	if atlas.get(index_above):
 		printerr("Clicked tile is not navicable")
 		return
-	calc_movement_range(click_index)
-	set_highlight(click_index)
-	print("Click Index = ", click_index)
+	calc_movement_range(index)
+	set_highlight(index)
+	print("Neighbours: ", atlas[index].neighbours)
+	print("Astar Neighbours: ", astar.get_point_connections(index))
+	print("Click Index = ", index)
 	#Check what tiles clicked tile is connected to. Maybe have it highlight them for debugging purposes.
 
 
 func calc_movement_range(start_index):
 	#Use the code below to get started on the movement range function. 
 	var neighbours = astar.get_point_connections(start_index)
-	var movement_array = []
+	var movement_array = {}
 	var buffer = []
 	var search_indexes = [start_index]
 	
@@ -390,14 +396,17 @@ func calc_movement_range(start_index):
 					continue
 				if !buffer.has(neighbour):
 					buffer.append(neighbour)
-			movement_array.append(index)
-			set_highlight(index)
-			print("Index to Highlight: ", index)
+			movement_array[index] = index
+			#set_highlight(index)
+			#print("Index to Highlight: ", index)
 		search_indexes = []
 		search_indexes = buffer
 		buffer = []
 		movement -= 1
-	#print("Movement Array: ", movement_array)
+	for index in movement_array.keys():
+		set_highlight(index)
+	print("Highlights size: ", highlights.size())
+	print("Movement Array Size = ", movement_array.keys().size())
 	print("Active highlights size: ", active_highlights.keys().size())
 	
 	#for index in neighbours:
@@ -438,16 +447,20 @@ func clear_highlights():
 		highlight.position = Vector2.ZERO
 		highlights.append(highlight)
 	active_highlights = {}
-	print(active_highlights)
+	print("----- Highlights Cleared -----")
+	if active_highlights != {}:
+		printerr("Active Highlights should be empty")
+		printerr("Active Highlights: ", active_highlights)
 
-func set_tile(index, texture_coordinates=null):
-	var layer:TileMapLayer = atlas[index].layer
-	var cell = Vector2(atlas[index].map.x, atlas[index].map.y)
-	if texture_coordinates == null:
-		texture_coordinates = atlas[index].texture
-	
-	layer.set_cell(cell, 2, texture_coordinates)
-	atlas[index].texture = texture_coordinates
+#func set_tile(index, texture_coordinates=null):
+	#var layer:TileMapLayer = atlas[index].layer
+	#var cell = Vector2(atlas[index].map.x, atlas[index].map.y)
+	#
+	#if texture_coordinates == null:
+			#texture_coordinates = atlas[index].texture
+	#
+	#layer.set_cell(cell, 2, texture_coordinates)
+	#atlas[index].texture = texture_coordinates
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -457,16 +470,205 @@ func _unhandled_input(event: InputEvent) -> void:
 				if event.pressed == true: 
 					find_clicked_tile(event)
 			
-			"Middle Mouse Button", "Right Mouse Button":
+			"Middle Mouse Button":
 				panning = event.pressed
 				pan_anchor = get_global_mouse_position()
 			
+			"Right Mouse Button":
+				if event.pressed == true:
+					place_tile_from_mouse_pos(get_global_mouse_position())
+					print("Right Clicked")
+				#add_tile()
 			_:
 				print(event.as_text(), " was pressed but has no assigned function")
 
 func _process(delta: float) -> void:
 	if panning:
 		%Camera.position += pan_anchor - get_global_mouse_position()
+
+
+
+func global_to_astarcoord(global_pos:Vector2) -> Vector3:
+	var x:int
+	var y:int
+	var z:int
+	var tile = null
+	var astarcoord
+	
+
+	
+	for layer:TileMapLayer in get_children():
+		var click_pos = layer.local_to_map(global_pos - Vector2(0, layer.position.y))
+		if layer.get_cell_tile_data(click_pos) == null:
+			continue
+		tile = click_pos
+		z = int(str(layer.name))
+	
+	if tile == null:
+		printerr("You fucked upppp")
+		return Vector3(-1,-1,-1)
+	tile = adjust_coord_for_orientation(tile)
+	tile = tile - map_min
+	
+	x = tile.x
+	y = tile.y
+	
+	astarcoord = Vector3(x,y,z)
+
+	if astarcoord == null:
+		printerr("Clicked tile returned as null")
+		return Vector3(-1, -1, -1)
+	
+	print("Selected Layer is ", z, " with Tile ", astarcoord)
+	
+	return astarcoord
+	
+
+func place_tile_from_mouse_pos(mouse_pos:Vector2, texture = null):
+	var astarcoord:Vector3
+	var x:int
+	var y:int
+	var z:int
+	var map:Vector2
+	var layer:TileMapLayer
+	var index:int
+	
+	# Need to add the tile to Atlas
+	
+	if texture == null:
+		texture = textures["Grass"]
+	
+	clear_highlights()
+	
+	astarcoord = global_to_astarcoord(mouse_pos)
+	if astarcoord == Vector3(-1,-1,-1):
+		return
+	var old_index = index
+	index = _calc_astar_index(astarcoord) + index_layer_value
+	print("Astarcoord: ", astarcoord)
+	print("Index: ", old_index)
+	astarcoord += Vector3(0,0,1)
+	if astarcoord.z >= map_height:
+		printerr(" Cannot place tiles any higher! ")
+		return
+	
+	x = astarcoord.x
+	y = astarcoord.y
+	z = astarcoord.z
+	map = Vector2i(x, y) + map_min
+	layer = get_child(z)
+
+	match orientation:
+		90:
+			map = Vector2(-map.y, map.x)
+		180:
+			map = Vector2(-map.x, -map.y)
+		270:
+			map = Vector2(map.y, -map.x)
+		360, 0:
+			pass
+
+	if !atlas.has(index):
+		atlas[index] = {
+			"map":map,
+			"x":map.x,
+			"y":map.y,
+			"z":z,
+			"layer":layer,
+			"texture":texture,
+			"neighbours":[],
+		}
+	
+	layer.set_cell(map, 0, texture)
+	visible_tiles.append(index)
+	
+	var neighbours = [
+		index_move_right, 
+		index_move_left, 
+		index_move_forward, 
+		index_move_back, 
+	
+		index_move_up,
+		index_move_down,
+		index_move_down_left,
+		index_move_down_right,
+		index_move_down_forward,
+		index_move_down_back,
+	
+		index_move_up_left,
+		index_move_up_right,
+		index_move_up_forward,
+		index_move_up_back,
+	]
+	#connect_neighbors(neighbours)
+
+	for neighbour in neighbours:
+		var new_index = index + neighbour
+
+		#If the new neighbour doesn't exist in the Atlas, or 
+		if !atlas.has(new_index):
+			continue
+
+		# If the index is negative...somehow.
+		if new_index < 0:
+			printerr("How in the FUCK did you get a negative index value??")
+			printerr("This shouldn't even be possible!")
+			printerr("Index: ", index, " New Index", new_index)
+			continue
+
+		# If the new neighbour is more than 1 tile away
+		if abs(atlas[index].map.x - atlas[new_index].map.x) > 1 \
+		or abs(atlas[index].map.y - atlas[new_index].map.y) > 1 \
+		or abs(atlas[index].z - atlas[new_index].z) > 1:
+			continue
+		if index == 207:
+			printerr("Index 207 CLEARED")
+		#if !astar.has_point(new_index):
+			#astar.add_point(new_index, astarcoord)
+			#print("	Astar added point ", new_index)
+		astar.connect_points(index, new_index)
+		atlas[index].neighbours.append(new_index)
+		print("Connected index ", index, " to index ", new_index)
+		if !astar.are_points_connected(index, new_index):
+			printerr("Astar Point connection FAILED")
+	
+	for neighbour in atlas[index].neighbours:
+		if !astar.are_points_connected(index, neighbour):
+			printerr("Points ", index, " and ", neighbour, " did not connect correctly in Astar node.")
+	
+	if check_if_tile_visible(old_index) == false:
+		
+		visible_tiles.remove_at((visible_tiles.find(old_index)))
+	
+	print("Visible Tiles Size: ", visible_tiles.size())
+	print("Astar Neighbours: ", astar.get_point_connections(index))
+	print("Atlas Neighbours: ", atlas[index].neighbours)
+	# Need to add the tile to Astar
+	# Need to connect the tile to Astar
+	# Need to draw the tile
+
+func check_if_tile_visible(index) -> bool:
+	var neighbours = [
+		index_move_right, 
+		index_move_left, 
+		index_move_forward, 
+		index_move_back, 
+		index_move_up
+		]
+	
+	var count = 0
+	
+	for neighbour in neighbours:
+		var new_index = index + neighbour
+		if atlas.has(new_index): 
+			count += 1
+			
+	if count >= 5:
+		print("Index ", index, " no longer visible")
+		return false
+	else: 
+		return true
+		
 
 func _calc_astar_index(vec3:Vector3i):
 	if vec3.x < 0 or vec3.y < 0:
