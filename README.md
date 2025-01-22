@@ -1,6 +1,15 @@
 # Introduction
 I'm working on this project as a resource to make developing maps and quickly playtesting tactics game in Godot. Everything will be written in GDScript and as readable as possible to keep this a useful learning tool. Feel free to suggest features or ideas for me to implement as I continue developing this project!!
 
+# Controls:
+### Middle Mouse Button
+Allows panning while pressed
+
+### Left Click
+Displays movement range highlight
+
+### Right Click
+Place a grass tile
 
 # Roadmap:
 
@@ -12,9 +21,9 @@ I'm working on this project as a resource to make developing maps and quickly pl
 - [x] Add ability to create highlights
 - [x] Add ability to generate movement grid for entities
 - [ ] Add ability to generate movement paths between two locations
-- [ ] Add ability to place tiles
+- [x] Add ability to place tiles
 - [ ] Add ability to remove tiles
-- [ ] Add ability for map to update at runtime upon tiles being edited
+- [x] Add ability for map to update at runtime upon tiles being edited
 - [ ] Have system automatically update visualtiles array when placing or removing tiles
 
 ## 0.3
