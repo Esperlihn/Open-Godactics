@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=4 uid="uid://dwd1b7f4fltt0"]
+[gd_scene load_steps=12 format=4 uid="uid://dwd1b7f4fltt0"]
 
 [ext_resource type="Script" path="res://Scripts/main.gd" id="1_3i3eo"]
 [ext_resource type="Script" path="res://Scripts/astar.gd" id="1_3m31v"]
@@ -10,7 +10,6 @@
 [ext_resource type="Script" path="res://Scripts/input.gd" id="5_725bi"]
 [ext_resource type="Texture2D" uid="uid://xehxfa35jy8s" path="res://icon.svg" id="5_vkwlm"]
 [ext_resource type="Script" path="res://Scripts/pathfinding.gd" id="6_udh2p"]
-[ext_resource type="Script" path="res://Scripts/mapedit.gd" id="7_40w0k"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n7rmj"]
 radius = 2.0
@@ -41,9 +40,6 @@ script = ExtResource("2_nn5rf")
 
 [node name="Pathfinding" type="Node" parent="Modules"]
 script = ExtResource("6_udh2p")
-
-[node name="Mapedit" type="Node" parent="Modules"]
-script = ExtResource("7_40w0k")
 
 [node name="Map" type="Node2D" parent="."]
 script = ExtResource("1_3m31v")
@@ -188,10 +184,6 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
 
 [node name="Canvas" type="HBoxContainer" parent="CanvasLayer/MarginContainer"]
 layout_mode = 2
